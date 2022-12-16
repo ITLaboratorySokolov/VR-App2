@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using UnityEngine;
@@ -8,9 +6,12 @@ public class LineImporter
 {
     public Brush ImportBrush(string brushname)
     {
+        if (!File.Exists(brushname + ".xml"))
+            throw new FileNotFoundException();    
+
         Brush b;
         XmlSerializer serializer = new XmlSerializer(typeof(Brush));
-        
+
         // Call the Deserialize method to restore the object's state.
         using (Stream reader = new FileStream(brushname + ".xml", FileMode.Open))
             b = (Brush)serializer.Deserialize(reader);

@@ -9,7 +9,7 @@ public class Brush : IDrawInstrument
     /// </summary>
     Color color;
     public Color Color { get => color; set => color = value; }
-    
+
     /// <summary>
     /// Brush texture
     /// </summary>
@@ -17,9 +17,12 @@ public class Brush : IDrawInstrument
     [XmlIgnore]
     public Texture2D Texture { get => texture; set => texture = value; }
 
-    /// <summary>
-    /// Width curve
-    /// </summary>
-    AnimationCurve widthCurve;
-    public AnimationCurve WidthCurve { get => widthCurve; set => widthCurve = value; }
+    /// <summary> Width modifiers, values 0-1 - percentage of width at constant timesteps </summary>
+    float[] widthModifier;
+    public float[] WidthModifier { get => widthModifier; set => widthModifier = value; }
+
+    /// <summary> Time per one iteration of width </summary>
+    float timePerIter;
+    public float TimePerIter { get => timePerIter; set => timePerIter = value; }
+
 }
