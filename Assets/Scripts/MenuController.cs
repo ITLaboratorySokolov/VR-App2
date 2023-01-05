@@ -1,61 +1,46 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class MenuController : MonoBehaviour
 {
-    public Image im;
-    public DisplayLineController displayLineController;
+    [Header("Controllers")]
+    [SerializeField()]
+    DisplayLineController displayLineController;
+    [SerializeField()]
+    FileBrowserController fileBrowserController;
 
-    Brush[] brushes;
-    int numberOfBrushes = 2;
+    [Header("Input fields")]
+    [SerializeField()]
+    TMP_InputField brushName;
+    [SerializeField()]
+    TMP_InputField path;
+
+    Brush currentBrush;
+    LineExporter le;
 
     // Start is called before the first frame update
     void Start()
     {
-        // Create width modifiers
-        double xStep = 1.0 / 5.0;
-        float[] yValues = new float[5 + 1];
-        for (int i = 0; i < 5 + 1; i++)
-        {
-            double xValue = i * xStep;
-            yValues[i] = Math.Abs((Mathf.Sin((float)(xValue * Mathf.PI)))) + 0.001f;
-        }
+        // generate a brush with constant width and black color
+        float[] yValues = new float[1];
+        yValues[0] = 1;
+        currentBrush = new Brush() { Width = 0.05f, Color = Color.black, Name = "SampleBrush", TimePerIter = 5, WidthModifier = yValues };
 
-        // Create texture
-        Texture2D tx = GenerateSimpleGradient(6);
+        // display the brush
+        displayLineController.GenerateExampleLine(currentBrush);
+        brushName.text = currentBrush.Name;
+        path.text = Application.dataPath;
 
-        // Manually create two brushes
-        brushes = new Brush[numberOfBrushes];
-        brushes[0] = new Brush() { Width = 0.05f, Color = Color.white, Texture = tx, Name = "BrushGrad2", TimePerIter = 5, WidthModifier = yValues };
-        brushes[1] = new Brush() { Width = 0.05f, Color = Color.black, Texture = tx, Name = "Brush02", TimePerIter = 10, WidthModifier = yValues };
-
-        LineExporter le = new LineExporter();
-
-        le.ExportBrush(brushes[0]);
-
-        LineImporter li = new LineImporter();
-
-        // load brush from file
-        Brush b = li.ImportBrush("BrushGrad");
-
-        // write out to console
-        Debug.Log(b.Name + " " + b.Width + " " + b.Color);
-        WriteArray<float>(b.WidthModifier);
-
-        im.sprite = LoadNewSprite(b.Texture);
-        im.SetNativeSize();
-
+        le = new LineExporter();
     }
 
-    private void WriteArray<T>(T[] arr)
-    {
-        for (int i = 0; i < arr.Length; i++)
-            Debug.Log(arr[i]);
-    }
-
+    /// <summary>
+    /// Generate simple gradient texture
+    /// </summary>
+    /// <param name="len"> Length of texture </param>
+    /// <returns> Gradient texture </returns>
     private Texture2D GenerateSimpleGradient(int len)
     {
         Texture2D tx = new Texture2D(len, 20, TextureFormat.RGB24, false);
@@ -81,33 +66,74 @@ public class MenuController : MonoBehaviour
         return tx;
     }
 
-    public Sprite LoadNewSprite(Texture2D texture, float PixelsPerUnit = 100.0f)
-    {
-        Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0), PixelsPerUnit);
-        //Instantiate(newSprite);
-        return newSprite;
-    }
-
-    private void WriteKeys(AnimationCurve c)
-    {
-        Keyframe[] ks = c.keys;
-        Debug.Log(ks.Length);
-        for (int i = 0; i < ks.Length; i++)
-            Debug.Log(ks[i].time + " " + ks[i].value);
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
+    /// <summary>
+    /// Apply button clicked
+    /// - interpret user code
+    /// </summary>
     public void OnApplyBTClick()
     {
         // TODO interpret code
 
-        displayLineController.GenerateExampleLine(brushes[0]);
+        double xStep = 1.0 / 5.0;
+        float[] yValues = new float[5 + 1];
+        for (int i = 0; i < 5 + 1; i++)
+        {
+            double xValue = i * xStep;
+            yValues[i] = Math.Abs((Mathf.Sin((float)(xValue * Mathf.PI)))) + 0.001f;
+        }
+
+        // Create texture
+        Texture2D tx = GenerateSimpleGradient(6);
+
+        currentBrush.Color = Color.white;
+        currentBrush.TimePerIter = 5;
+        currentBrush.WidthModifier = yValues;
+        currentBrush.Texture = tx;
+
+        displayLineController.GenerateExampleLine(currentBrush);
     }
 
+    /// <summary>
+    /// React to brush name changed
+    /// </summary>
+    public void OnBrushNameChanged()
+    {
+        // escape string - only allows a-z, A-Z 0-9, _ and a space
+        string newName = Regex.Replace(brushName.text, "[^a-zA-Z0-9_ ]+", "", RegexOptions.Compiled);
+        
+        // set name
+        if (newName.Length != 0)
+        {
+            currentBrush.Name = newName;
+            brushName.text = newName;
+        }
+    }
+
+    /// <summary>
+    /// React to browse button pressed
+    /// - open folder explorer
+    /// </summary>
+    public void OnBrowseBT()
+    {
+        string p = path.text.Trim();
+        fileBrowserController.OpenFolder(p, UpdatePathTXT);
+    }
+
+    /// <summary>
+    /// Update export path 
+    /// </summary>
+    /// <param name="p"> New export path </param>
+    public void UpdatePathTXT(string p)
+    {
+        path.text = p;
+    }
+
+    /// <summary>
+    /// React to export button pressed
+    /// - export brush and its texture
+    /// </summary>
+    public void OnExportBT()
+    {
+        le.ExportBrush(currentBrush, path.text.Trim());
+    }
 }

@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class LineImporter
 {
-    public Brush ImportBrush(string brushname)
+    public Brush ImportBrush(string brushname, string dirPath)
     {
-        if (!File.Exists(brushname + ".xml"))
+        if (dirPath == null || dirPath == "")
+            dirPath = Application.dataPath;
+
+        if (!File.Exists(dirPath + "/" + brushname + ".xml"))
             throw new FileNotFoundException();    
 
         Brush b;
@@ -19,7 +22,7 @@ public class LineImporter
         // Read texture from file with brush name
         Texture2D tex = null;
         byte[] fileData;
-        if (File.Exists(brushname + ".png"))
+        if (File.Exists(dirPath + "/" + brushname + ".png"))
         {
             fileData = File.ReadAllBytes(brushname + ".png");
             tex = new Texture2D(2, 2);

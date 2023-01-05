@@ -12,14 +12,6 @@ public class DisplayLineController : MonoBehaviour
     void Start()
     {
         tg = new TriangleStripGenerator();
-
-        // generate a brush with constant width and black color
-        float[] yValues = new float[1];
-        yValues[0] = 1;
-        Brush sampleBrush = new Brush() { Width = 0.05f, Color = Color.black, Name = "SampleBrush", TimePerIter = 5, WidthModifier = yValues };
-
-        // display the brush
-        GenerateExampleLine(sampleBrush);
     }
 
     public void GenerateExampleLine(Brush brush)
