@@ -10,12 +10,22 @@ public class MenuController : MonoBehaviour
     DisplayLineController displayLineController;
     [SerializeField()]
     FileBrowserController fileBrowserController;
+    [SerializeField()]
+    UserCodeProcessor userCodeProcessor;
 
     [Header("Input fields")]
     [SerializeField()]
     TMP_InputField brushName;
     [SerializeField()]
     TMP_InputField path;
+    [SerializeField()]
+    TMP_InputField userCode;
+    [SerializeField()]
+    TMP_Text error;
+
+    [Header("Game objects")]
+    [SerializeField()]
+    GameObject helpPanel;
 
     Brush currentBrush;
     LineExporter le;
@@ -23,6 +33,8 @@ public class MenuController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        error.text = "";
+
         // generate a brush with constant width and black color
         float[] yValues = new float[1];
         yValues[0] = 1;
@@ -74,6 +86,22 @@ public class MenuController : MonoBehaviour
     {
         // TODO interpret code
 
+        string code = userCode.text;
+        currentBrush = userCodeProcessor.ExecuteCode(code);
+
+        if (currentBrush == null)
+        {
+            error.text = userCodeProcessor.ERROR_MSG;
+        }
+        else
+        {
+            currentBrush.Name = brushName.text;
+            displayLineController.GenerateExampleLine(currentBrush);
+            error.text = "";
+
+        }
+
+        /*
         double xStep = 1.0 / 5.0;
         float[] yValues = new float[5 + 1];
         for (int i = 0; i < 5 + 1; i++)
@@ -91,6 +119,7 @@ public class MenuController : MonoBehaviour
         currentBrush.Texture = tx;
 
         displayLineController.GenerateExampleLine(currentBrush);
+        */
     }
 
     /// <summary>
@@ -135,5 +164,10 @@ public class MenuController : MonoBehaviour
     public void OnExportBT()
     {
         le.ExportBrush(currentBrush, path.text.Trim());
+    }
+
+    public void ToggleHelpPanel(bool value)
+    {
+        helpPanel.SetActive(value);
     }
 }

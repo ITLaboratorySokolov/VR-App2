@@ -17,7 +17,9 @@ public class DisplayLineController : MonoBehaviour
     public void GenerateExampleLine(Brush brush)
     {
         TriangleStrip ts = new TriangleStrip(beginning.position);
-        lineObj.GetComponent<Renderer>().material.SetTexture("_MainTex", brush.Texture);
+
+        if (brush.Texture != null)
+            lineObj.GetComponent<Renderer>().material.SetTexture("_MainTex", brush.Texture);
         lineObj.GetComponent<Renderer>().material.SetColor("_Color", brush.Color);
 
         // make a triangle strip from beggining to end
@@ -64,8 +66,6 @@ public class DisplayLineController : MonoBehaviour
             }
             float u = Mathf.Lerp(uSt, uEn, t);
 
-            Debug.Log(u + " " + v);
-
             // Generate next part of the triangle strip
             tg.AddPointToLine(newPos, brush.Width * widthModifier, beginning.transform.up.normalized, ts, u, v);
 
@@ -75,7 +75,7 @@ public class DisplayLineController : MonoBehaviour
         }
 
         lineObj.GetComponent<MeshFilter>().mesh = ts.mesh;
-        lineObj.GetComponent<MeshCollider>().sharedMesh = ts.mesh;
+        //lineObj.GetComponent<MeshCollider>().sharedMesh = ts.mesh;
     }
 
     // Update is called once per frame

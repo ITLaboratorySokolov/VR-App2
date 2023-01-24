@@ -27,8 +27,8 @@ public class TriangleStripGenerator
         newVertices[strip.mesh.vertices.Length] = p1;
         newVertices[strip.mesh.vertices.Length + 1] = p2;
 
-        newUVs[strip.mesh.uv.Length] = new Vector2(u, v);
-        newUVs[strip.mesh.uv.Length + 1] = new Vector2(u, v);
+        newUVs[strip.mesh.uv.Length] = new Vector2(u, 1);
+        newUVs[strip.mesh.uv.Length + 1] = new Vector2(u, 0);
 
         // creating the first triangle
         if (strip.mesh.vertices.Length == 1)
