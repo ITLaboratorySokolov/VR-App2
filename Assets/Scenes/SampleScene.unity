@@ -6327,7 +6327,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pythonPath: 
-  ERROR_MSG: 
 --- !u!1 &1889090929
 GameObject:
   m_ObjectHideFlags: 0
@@ -6391,9 +6390,9 @@ MonoBehaviour:
     - int in interval <1, 100>\n- widthModifier - list of floats in interval <0,
     1>\n- time - int\n- texSize - list of ints [width, height]\n- pixels - list of
     colors ([r, g, b]/[r, g, b, a]) of length width*height, valid values of a is
-    0 or 1\n\nwidthModifier = modifies the width of line in given keyframe\ntime
-    = how long will one loop through widthModifiers and texture take\npixels = assembled
-    into texture row by row"
+    0 or 1\n\ntexSize and pixels are optional\nwidthModifier = modifies the width
+    of line in given keyframe\ntime = how long will one loop through widthModifiers
+    and texture take\npixels = assembled into texture row by row"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -6420,8 +6419,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
