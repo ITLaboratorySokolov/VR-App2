@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PythonExecutionLibrary;
+using System.IO;
 
 public class UserCodeProcessor : MonoBehaviour
 {
@@ -23,6 +24,20 @@ public class UserCodeProcessor : MonoBehaviour
     void Update()
     {
         
+    }
+    
+    public bool ResetPythonPath(string newpath)
+    {
+        if (File.Exists(newpath) && newpath.EndsWith(".dll")) {
+            pythonPath = newpath;
+            ex.SetPython(pythonPath);
+            return true;
+        }
+        else
+        {
+            ERROR_MSG = "Invalid python dll path";
+            return false;
+        }
     }
 
     public Brush ExecuteCode(string code)
