@@ -2,6 +2,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Class used to switch between czech and english languages
+/// </summary>
 public class LanguageController : MonoBehaviour
 {
     [Header("Text")]
@@ -48,6 +51,8 @@ public class LanguageController : MonoBehaviour
     internal string lang;
 
     [Header("Strings")]
+    internal string noUserCode = "No user code written";
+
     internal string browseTitleEN = "Choose export folder";
     internal string browseTitleCZ = "Vybrat složku";
 
@@ -89,7 +94,7 @@ public class LanguageController : MonoBehaviour
 - widthModifier - list promìnných typu float z intervalu <0, 1>
 - time - promìnná typu int
 - texSize - list promìnných typu int ve tvaru [šíøka, výška]
-- pixels - list barev ([r, g, b] nebo [r, g, b, a]) délky šíøka*výška, povolené hodnoty a jsou 0 nebo 1
+- pixels - list barev ([r, g, b] nebo [r, g, b, a]) délky šíøka*výška, povolené hodnoty 'a' jsou 0 nebo 1
 
 texSize a pixels jsou volitelné návratové hodnoty
 widthModifier = upravují velikost štìtce v urèitém bodì v èase
@@ -103,7 +108,7 @@ pixels = pixely textury øádku po øádce";
 - widthModifier - list of floats in interval <0, 1>
 - time - int
 - texSize - list of ints [width, height]
-- pixels - list of colors ([r, g, b]/[r, g, b, a]) of length width* height, valid values of a is 0 or 1
+- pixels - list of colors ([r, g, b]/[r, g, b, a]) of length width* height, valid values of 'a' is 0 or 1
 
 texSize and pixels are optional
 widthModifier = modifies the width of line in given keyframe
@@ -171,6 +176,7 @@ pixels = assembled into texture row by row";
             path.placeholder.GetComponent<TMP_Text>().text = inputPromptCZ;
             dllPath.placeholder.GetComponent<TMP_Text>().text = inputPromptCZ;
 
+            noUserCode = "Žádný kód k vykonání";
         }
 
         else if (langCZ == "EN")
@@ -196,6 +202,8 @@ pixels = assembled into texture row by row";
             userCode.placeholder.GetComponent<TMP_Text>().text = inputPromptEN;
             path.placeholder.GetComponent<TMP_Text>().text = inputPromptEN;
             dllPath.placeholder.GetComponent<TMP_Text>().text = inputPromptEN;
+
+            noUserCode = "No user code to execute";
         }
     }
 }

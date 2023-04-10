@@ -1,9 +1,9 @@
 using System.Xml.Serialization;
 using UnityEngine;
-using PythonExecutionLibrary;
 using Python.Runtime;
 using System.Globalization;
 using System;
+using ZCU.PythonExecutionLibrary;
 
 /// <summary> Class representing a brush </summary>
 public class Brush : IDrawInstrument, IReturnable
@@ -46,29 +46,37 @@ public class Brush : IDrawInstrument, IReturnable
             if (obj.Length() < 4 || obj.Length() > 6)
                 throw new Exception("Wrong returned arguments");
 
-            // color
+            // color - rgb 0-1
             Color = ConvertToColor(obj[0], baseCulture);
 
+            // width - <1-100>
             Width = (float)obj[1].ToDouble(baseCulture);
-            Width = MathF.Max(1, MathF.Min(100, Width));
-            Width *= 0.001f;
+            Width = ConvertorHelper.Clamp(Width, 1, 100);
+            Width *= 0.001f; // multiplied 0.001 for better displaying in scene
 
-            // width modifier
+            // width modifier <0-1>
             long wLen = obj[2].Length();
             WidthModifier = new float[wLen];
             for (int i = 0; i < wLen; i++)
+            {
                 WidthModifier[i] = (float)obj[2][i].ToDouble(baseCulture);
+                WidthModifier[i] = ConvertorHelper.Clamp(WidthModifier[i], 0, 1);
+            }
 
+            // time per iteration
             TimePerIter = (float)obj[3].ToDouble(baseCulture);
 
+            // texture
             if (obj.Length() == 6)
             {
-                // tex size
+                // tex size - >0
                 int width = obj[4][0].ToInt32(baseCulture);
+                width = (int)ConvertorHelper.Clamp(width, 1, int.MaxValue);
                 int height = obj[4][1].ToInt32(baseCulture);
+                height = (int)ConvertorHelper.Clamp(height, 1, int.MaxValue);
                 Texture2D tex = new Texture2D(width, height);
 
-                // pixels
+                // pixels - rgbs <0-1>
                 var cols = tex.GetPixels();
                 PyObject pxs = obj[5];
                 for (int i = 0; i < pxs.Length(); i++)
@@ -94,6 +102,12 @@ public class Brush : IDrawInstrument, IReturnable
         return true;
     }
 
+    /// <summary>
+    /// Convert pyObject to Color
+    /// </summary>
+    /// <param name="pyC"> PyObject </param>
+    /// <param name="baseCulture"> Used base culture </param>
+    /// <returns> Created color </returns>
     private Color ConvertToColor(PyObject pyC, CultureInfo baseCulture)
     {
         float r = (float)pyC[0].ToDouble(baseCulture);
@@ -101,10 +115,15 @@ public class Brush : IDrawInstrument, IReturnable
         float b = (float)pyC[2].ToDouble(baseCulture);
         float a = 1;
 
+        r = ConvertorHelper.Clamp(r, 0, 1);
+        g = ConvertorHelper.Clamp(g, 0, 1);
+        b = ConvertorHelper.Clamp(b, 0, 1);
+
         if (pyC.Length() > 3)
             a = (float)pyC[3].ToDouble(baseCulture);
-        Color c = new Color(r, g, b, a);
+        a = ConvertorHelper.Clamp(a, 0, 1);
 
+        Color c = new Color(r, g, b, a);
         return c;
     }
 }

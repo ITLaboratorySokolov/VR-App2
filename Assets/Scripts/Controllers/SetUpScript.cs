@@ -3,8 +3,6 @@ using System.IO;
 using System.Threading;
 using UnityEngine;
 
-// TODO path to config file
-
 /// <summary>
 /// Script managing the set up of the application
 /// - reads config file
@@ -36,6 +34,9 @@ public class SetUpScript : MonoBehaviour
         ReadConfig();
     }
 
+    /// <summary>
+    /// Read config file
+    /// </summary>
     private void ReadConfig()
     {
         if (File.Exists(pathToConfig))
@@ -47,8 +48,6 @@ public class SetUpScript : MonoBehaviour
                 pythonPath = lines[0].Trim();
                 userCodeProcessor.pythonPath = pythonPath;
             }
-
-
         }
     }
 }

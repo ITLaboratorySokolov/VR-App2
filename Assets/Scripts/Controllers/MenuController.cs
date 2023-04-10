@@ -2,7 +2,11 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
+/// <summary>
+/// Class controlling the menu
+/// </summary>
 public class MenuController : MonoBehaviour
 {
     [Header("Controllers")]
@@ -28,6 +32,10 @@ public class MenuController : MonoBehaviour
     TMP_InputField codeLineNums;
     [SerializeField()]
     TMP_Text error;
+
+    [Header("Input fields")]
+    [SerializeField()]
+    Button SetDllPathBT;
 
     [Header("Game objects")]
     [SerializeField()]
@@ -62,6 +70,13 @@ public class MenuController : MonoBehaviour
     public void OnApplyBTClick()
     {
         string code = userCode.text;
+
+        if (code.Trim().Length == 0)
+        {
+            error.text = langController.noUserCode;
+            return;
+        }
+
         currentBrush = userCodeProcessor.ExecuteCode(code);
 
         if (currentBrush == null)
@@ -83,8 +98,16 @@ public class MenuController : MonoBehaviour
             displayLineController.GenerateExampleLine(currentBrush);
             error.text = "";
         }
+
+        if (userCodeProcessor.GetInitStatus())
+        {
+            SetDllPathBT.interactable = false;
+        }
     }
 
+    /// <summary>
+    /// Fix scrollbar position
+    /// </summary>
     public void FixScroll()
     {
         if (userCode.caretPosition == userCode.text.Length && userCode.verticalScrollbar.size < 1)
@@ -94,6 +117,9 @@ public class MenuController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Fix scrollbar position coroutine
+    /// </summary>
     IEnumerator FixCoroutine()
     {
         Canvas.ForceUpdateCanvases();
@@ -103,6 +129,9 @@ public class MenuController : MonoBehaviour
         Canvas.ForceUpdateCanvases();
     }
 
+    /// <summary>
+    /// Add line numbers to the line counter text field
+    /// </summary>
     public void SyncLineNumbers()
     {
         int lineCount = Regex.Matches(userCode.text, "\n").Count;
@@ -113,7 +142,7 @@ public class MenuController : MonoBehaviour
         }
         newTxt += lineCount+1 + "";
 
-        codeLineNums.text = newTxt; //placeholder.GetComponent<TMP_Text>().text = newTxt;
+        codeLineNums.text = newTxt; 
         codeLineNums.verticalScrollbar.value = userCode.verticalScrollbar.value;
     }
 
@@ -123,14 +152,13 @@ public class MenuController : MonoBehaviour
     public void OnBrushNameChanged()
     {
         // escape string - only allows a-z, A-Z 0-9, _ and a space
-        string newName = Regex.Replace(brushName.text, "[^a-zA-Z0-9_ ]+", "", RegexOptions.Compiled);
+        string newName = Regex.Replace(brushName.text, "[^a-zA-Z0-9_ -]+", "", RegexOptions.Compiled);
         
         // set name
         if (newName.Length != 0)
-        {
             currentBrush.Name = newName;
-            brushName.text = newName;
-        }
+
+        brushName.text = newName;
     }
 
     /// <summary>
@@ -181,6 +209,9 @@ public class MenuController : MonoBehaviour
         {
             Debug.Log("Wrong dll");
             error.text = userCodeProcessor.ERROR_MSG;
+        } else
+        {
+            error.text = "";
         }
     }
 

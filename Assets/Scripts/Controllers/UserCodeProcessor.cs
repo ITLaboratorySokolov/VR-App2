@@ -1,16 +1,21 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using PythonExecutionLibrary;
 using System.IO;
+using ZCU.PythonExecutionLibrary;
 
+/// <summary>
+/// Class used for execution of user code
+/// </summary>
 public class UserCodeProcessor : MonoBehaviour
 {
+    /// <summary> Executor of python code </summary>
     PythonExecutor ex;
     
+    /// <summary> Path to python.dll </summary>
     [SerializeField()]
     internal string pythonPath;
 
+    /// <summary> Last error message </summary>
     internal string ERROR_MSG;
 
     // Start is called before the first frame update
@@ -20,12 +25,11 @@ public class UserCodeProcessor : MonoBehaviour
         ex.SetPython(pythonPath);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-    
+    /// <summary>
+    /// Set new path to python.dll
+    /// </summary>
+    /// <param name="newpath"> New path to python.dll </param>
+    /// <returns> True if successful, false if not </returns>
     public bool ResetPythonPath(string newpath)
     {
         if (File.Exists(newpath) && newpath.EndsWith(".dll")) {
@@ -40,6 +44,11 @@ public class UserCodeProcessor : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Create a function from user code and execute the created code
+    /// </summary>
+    /// <param name="code"> User code </param>
+    /// <returns> Created brush </returns>
     public Brush ExecuteCode(string code)
     {
         List<string> paramNames = new List<string>();
@@ -59,5 +68,14 @@ public class UserCodeProcessor : MonoBehaviour
         }
 
         return b;
+    }
+
+    /// <summary>
+    /// Was python already initialized
+    /// </summary>
+    /// <returns> True if initialized, false if not </returns>
+    public bool GetInitStatus()
+    {
+        return ex.initializedOnce;
     }
 }

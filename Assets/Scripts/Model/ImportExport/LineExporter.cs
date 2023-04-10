@@ -2,6 +2,9 @@ using System.IO;
 using System.Xml.Serialization;
 using UnityEngine;
 
+/// <summary>
+/// Class used to export brush data
+/// </summary>
 public class LineExporter
 {
     /// <summary>

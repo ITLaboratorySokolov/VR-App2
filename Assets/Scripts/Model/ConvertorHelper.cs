@@ -6,6 +6,11 @@ using UnityEngine;
 /// </summary>
 public static class ConvertorHelper
 {
+    // Texture helper variables
+    public static Texture2D texture2D;
+    static RenderTexture currentRT;
+    static RenderTexture renderTexture;
+
     /// <summary>
     /// Elongate array by add number of members, does not initialize the new members
     /// </summary>
@@ -114,10 +119,6 @@ public static class ConvertorHelper
         return floats;
     }
 
-    public static Texture2D texture2D;
-    static RenderTexture currentRT;
-    static RenderTexture renderTexture;
-
     /// <summary>
     /// Converts Texture to Texture2D
     /// </summary>
@@ -141,5 +142,18 @@ public static class ConvertorHelper
 
         UnityEngine.Object.Destroy(currentRT);
         return texture2D;
+    }
+
+    /// <summary>
+    /// Clamp value
+    /// </summary>
+    /// <param name="val"> Value </param>
+    /// <param name="min"> Min </param>
+    /// <param name="max"> Max </param>
+    /// <returns> Clamped value </returns>
+    public static float Clamp(float val, float min, float max)
+    {
+        float res = MathF.Max(min, MathF.Min(max, val));
+        return res;
     }
 }

@@ -1,11 +1,21 @@
 using UnityEngine;
 
+/// <summary>
+/// Class used to display preview of a brush stroke
+/// </summary>
 public class DisplayLineController : MonoBehaviour
 {
+    /// <summary> Start of the line in scene </summary>
+    [SerializeField]
     public Transform beginning;
+    /// <summary> End of the line in scene </summary>
+    [SerializeField]
     public Transform end;
+    /// <summary> Line object </summary>
+    [SerializeField]
     public GameObject lineObj;
 
+    /// <summary> Triangle strip generator </summary>
     TriangleStripGenerator tg;
 
     // Start is called before the first frame update
@@ -14,16 +24,19 @@ public class DisplayLineController : MonoBehaviour
         tg = new TriangleStripGenerator();
     }
 
+    /// <summary>
+    /// Generate example line going from beggining to end drawn with brush
+    /// </summary>
+    /// <param name="brush"> Brush to draw the line with </param>
     public void GenerateExampleLine(Brush brush)
     {
         TriangleStrip ts = new TriangleStrip(beginning.position);
-
-        if (brush.Texture != null)
-            lineObj.GetComponent<Renderer>().material.SetTexture("_MainTex", brush.Texture);
+        
+        // set color and texture
+        lineObj.GetComponent<Renderer>().material.SetTexture("_MainTex", brush.Texture);
         lineObj.GetComponent<Renderer>().material.SetColor("_Color", brush.Color);
 
         // make a triangle strip from beggining to end
-        // line from beggining to end
         float step = 0.05f;
         int modLen = brush.WidthModifier.Length;
         float widthModifier = brush.WidthModifier[0];
@@ -75,12 +88,5 @@ public class DisplayLineController : MonoBehaviour
         }
 
         lineObj.GetComponent<MeshFilter>().mesh = ts.mesh;
-        //lineObj.GetComponent<MeshCollider>().sharedMesh = ts.mesh;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
