@@ -221,7 +221,10 @@ public class MenuController : MonoBehaviour
     /// </summary>
     public void OnExportBT()
     {
-        le.ExportBrush(currentBrush, path.text.Trim());
+        if (currentBrush == null)
+            error.text = langController.noBrush;
+        else 
+            le.ExportBrush(currentBrush, path.text.Trim());
     }
 
     /// <summary>

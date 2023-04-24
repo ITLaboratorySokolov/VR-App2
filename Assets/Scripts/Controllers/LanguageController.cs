@@ -51,6 +51,7 @@ public class LanguageController : MonoBehaviour
     internal string lang;
 
     [Header("Strings")]
+    internal string noBrush = "No brush to export";
     internal string noUserCode = "No user code written";
 
     internal string browseTitleEN = "Choose export folder";
@@ -83,7 +84,7 @@ public class LanguageController : MonoBehaviour
     string exportCZ = "Exportovat";
     string exportEN = "Export";
 
-    string helpTCZ = "Specifinace Python kódu";
+    string helpTCZ = "Specifikace Python kódu";
     string helpTEN = "Python Code Requirements";
 
     string helpCZ =
@@ -177,6 +178,7 @@ pixels = assembled into texture row by row";
             dllPath.placeholder.GetComponent<TMP_Text>().text = inputPromptCZ;
 
             noUserCode = "Žádný kód k vykonání";
+            noBrush = "Žádný štìtec k exportování";
         }
 
         else if (langCZ == "EN")
@@ -204,6 +206,7 @@ pixels = assembled into texture row by row";
             dllPath.placeholder.GetComponent<TMP_Text>().text = inputPromptEN;
 
             noUserCode = "No user code to execute";
+            noBrush = "No brush to export";
         }
     }
 }

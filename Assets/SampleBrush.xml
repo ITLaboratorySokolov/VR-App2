@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Brush xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Name>SampleBrush</Name>
+  <Width>0.05</Width>
+  <Color>
+    <r>0</r>
+    <g>0</g>
+    <b>0</b>
+    <a>1</a>
+  </Color>
+  <WidthModifier>
+    <float>1</float>
+  </WidthModifier>
+  <TimePerIter>5</TimePerIter>
+</Brush>
