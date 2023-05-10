@@ -88,7 +88,7 @@ public class LanguageController : MonoBehaviour
     string helpTEN = "Python Code Requirements";
 
     string helpCZ =
-@"Uživatelský kód musi vracet python list
+@"Uživatelský kód musí vracet python list
     [color, width, widthModifiers, time, texSize, pixels]
 - color - list promìnných typu float z intervalu <0,1> ve tvaru [r, g, b]
 - width - promìnná typu int z intervalu <1, 100>
