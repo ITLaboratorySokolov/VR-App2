@@ -52,10 +52,24 @@ public class LanguageController : MonoBehaviour
 
     [Header("Strings")]
     internal string noBrush = "No brush to export";
+    internal string brushExported = "Brush exported";
     internal string noUserCode = "No user code written";
+    internal string codeExecuting = "User code executing";
+    internal string codeExecuted = "User code executed";
+    internal string dllSet = "Python.dll was set";
+    internal string fileLoaded = "Code was loaded from a .py file";
+    internal string fileSaved = "Code was saved to a .py file";
+    internal string fileErr = "File not found";
+    internal string fileErr2 = "File type not recognized (.py expected)";
 
     internal string browseTitleEN = "Choose export folder";
     internal string browseTitleCZ = "Vybrat složku";
+
+    internal string saveFileEN = "Save as file";
+    internal string saveFileCZ = "Uložit jako soubor";
+
+    internal string browseFileEN = "Load .py file";
+    internal string browseFileCZ = "Naèíst .py soubor";
 
     string inputPromptCZ = "Napiš text...";
     string inputPromptEN = "Enter text...";
@@ -138,6 +152,20 @@ pixels = assembled into texture row by row";
     }
 
     /// <summary>
+    /// Get file loading error
+    /// </summary>
+    /// <param name="type"> Type of error 1 - file not found, 2 - wrong file type </param>
+    /// <returns> String with description of file loading error </returns>
+    internal string GetFileError(int type)
+    {
+        if (type == 1)
+            return fileErr;
+        if (type == 2)
+            return fileErr2;
+        return "";
+    }
+
+    /// <summary>
     /// Swap languages between CZ and EN
     /// </summary>
     public void SwapLanguage()
@@ -165,7 +193,7 @@ pixels = assembled into texture row by row";
             helpTXT.text = helpCZ;
             setDllTXT.text = setDllCZ;
 
-            applyBT.GetComponentInChildren<TMP_Text>().text = applyCZ;
+            // applyBT.GetComponentInChildren<TMP_Text>().text = applyCZ;
             exportBT.GetComponentInChildren<TMP_Text>().text = exportCZ;
             browseBT.GetComponentInChildren<TMP_Text>().text = browseCZ;
             browseDllBT.GetComponentInChildren<TMP_Text>().text = browseCZ;
@@ -179,6 +207,14 @@ pixels = assembled into texture row by row";
 
             noUserCode = "Žádný kód k vykonání";
             noBrush = "Žádný štìtec k exportování";
+            brushExported = "Štìtec exportován";
+            codeExecuted = "Kód úspìšnì vykonán";
+            codeExecuting = "Kód se vykonává";
+            dllSet = "Python.dll bylo nastaveno";
+            fileLoaded = "Kód byl naèten z .py souboru";
+            fileSaved = "Kód byl uložen do .py souboru";
+            fileErr = "Soubor nenalezen";
+            fileErr2 = "Neznámá pøípona souboru (oèekáváno .py)";
         }
 
         else if (langCZ == "EN")
@@ -191,7 +227,7 @@ pixels = assembled into texture row by row";
             helpTXT.text = helpEN;
             setDllTXT.text = setDllEN;
 
-            applyBT.GetComponentInChildren<TMP_Text>().text = applyEN;
+            // applyBT.GetComponentInChildren<TMP_Text>().text = applyEN;
             exportBT.GetComponentInChildren<TMP_Text>().text = exportEN;
             browseBT.GetComponentInChildren<TMP_Text>().text = browseEN;
             browseDllBT.GetComponentInChildren<TMP_Text>().text = browseEN;
@@ -207,6 +243,14 @@ pixels = assembled into texture row by row";
 
             noUserCode = "No user code to execute";
             noBrush = "No brush to export";
+            brushExported = "Brush exported";
+            codeExecuted = "User code executed";
+            codeExecuting = "User code executing";
+            dllSet = "Python.dll was set";
+            fileLoaded = "Code was loaded from a .py file";
+            fileSaved = "Code was saved to a .py file";
+            fileErr = "File not found";
+            fileErr2 = "File type not recognized (.py expected)";
         }
     }
 }

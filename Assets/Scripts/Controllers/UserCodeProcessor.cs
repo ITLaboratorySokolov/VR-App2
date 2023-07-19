@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using ZCU.PythonExecutionLibrary;
+using System;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Class used for execution of user code
@@ -14,6 +16,8 @@ public class UserCodeProcessor : MonoBehaviour
     /// <summary> Path to python.dll </summary>
     [SerializeField()]
     internal string pythonPath;
+    [SerializeField()]
+    ConsoleController consoleController;
 
     /// <summary> Last error message </summary>
     internal string ERROR_MSG;
@@ -22,7 +26,16 @@ public class UserCodeProcessor : MonoBehaviour
     void Start()
     {
         ex = new PythonExecutor();
+
+        Debug.Log(pythonPath);
+
+        // if in config wasnt valid dll path set default built in path
+        bool res = ResetPythonPath(pythonPath);
+        if (!res)
+            pythonPath = Directory.GetCurrentDirectory() + "/Resources/python37.dll"; 
+
         ex.SetPython(pythonPath);
+        Debug.Log(pythonPath);
     }
 
     /// <summary>
@@ -34,7 +47,15 @@ public class UserCodeProcessor : MonoBehaviour
     {
         if (File.Exists(newpath) && newpath.EndsWith(".dll")) {
             pythonPath = newpath;
-            ex.SetPython(pythonPath);
+            // setting python path can fail if there was a previous attempt to run code with different dll
+            try
+            {
+                ex.SetPython(pythonPath);
+            } catch (Exception e)
+            {
+                ERROR_MSG = e.Message;
+                return false;
+            }
             return true;
         }
         else
@@ -49,24 +70,61 @@ public class UserCodeProcessor : MonoBehaviour
     /// </summary>
     /// <param name="code"> User code </param>
     /// <returns> Created brush </returns>
-    public Brush ExecuteCode(string code)
+    public async Task<Brush> ExecuteCode(string code)
     {
+        var stdoutWriter = new DispatchedTextWriter(consoleController, false);
+        var stderrWriter = new DispatchedTextWriter(consoleController, true);
+
         List<string> paramNames = new List<string>();
         Dictionary<string, object> inVariables = new Dictionary<string, object>();
-        string exCode = ex.CreateCode("userCode", paramNames, inVariables, code);
+        string exCode = ex.CreateCode("userCode", paramNames, new List<string>(inVariables.Keys), code);
 
         Debug.Log(exCode);
 
-        Brush b = new Brush();
-        bool res = ex.RunCode(exCode, inVariables, b);
-
-        if (!res)
+        Brush b = await Task<Brush>.Run(() =>
         {
-            Debug.LogError(ex.ERROR_MSG);
-            ERROR_MSG = ex.ERROR_MSG;
-            return null;
-        }
+            Brush b = new Brush();
 
+            try
+            {
+                // if python not yet initialized - initialize
+                // if this fails, user needs to restart the whole app to reinit
+                if (!ex.initializedOnce)
+                {
+                    ex.SetPython(pythonPath);
+                    ex.Initialize();
+                }
+                ex.RunCode(exCode, inVariables, b, stdoutWriter, stderrWriter);
+                Debug.Log("Code executed");
+
+            }
+            catch (Python.Runtime.PythonException e)
+            {
+                Debug.LogError("Python exception: " + e.Message);
+                ERROR_MSG = e.Message; // pythonExecutor.ERROR_MSG;
+                return null;
+            }
+            catch (Exception e)
+            {
+                // python runtime incorrectly set
+                if (e.Message.Contains("Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL"))
+                {
+                    Debug.LogError("Exception: " + e.Message);
+                    ERROR_MSG = e.Message + "\nRestart of application might be needed.";
+                }
+                else
+                {
+                    Debug.LogError("Exception: " + e.Message);
+                    ERROR_MSG = e.Message;
+                }
+                return null;
+            }
+
+            return b;
+        });
+
+        if (b != null)
+            b.SetTexture();
         return b;
     }
 

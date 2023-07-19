@@ -20,6 +20,12 @@ public class Brush : IDrawInstrument, IReturnable
     Texture2D texture;
     [XmlIgnore]
     public Texture2D Texture { get => texture; set => texture = value; }
+    [XmlIgnore]
+    Color[] textureData;
+    [XmlIgnore]
+    int width;
+    [XmlIgnore]
+    int height;
 
     /// <summary> Width modifiers, values 0-1 - percentage of width at constant timesteps </summary>
     float[] widthModifier;
@@ -70,26 +76,28 @@ public class Brush : IDrawInstrument, IReturnable
             if (obj.Length() == 6)
             {
                 // tex size - >0
-                int width = obj[4][0].ToInt32(baseCulture);
+                width = obj[4][0].ToInt32(baseCulture);
                 width = (int)ConvertorHelper.Clamp(width, 1, int.MaxValue);
-                int height = obj[4][1].ToInt32(baseCulture);
+                height = obj[4][1].ToInt32(baseCulture);
                 height = (int)ConvertorHelper.Clamp(height, 1, int.MaxValue);
-                Texture2D tex = new Texture2D(width, height);
+                
+                // Texture2D tex = new Texture2D(width, height);
 
                 // pixels - rgbs <0-1>
-                var cols = tex.GetPixels();
+                // var cols = tex.GetPixels();
+                textureData = new Color[width * height];
                 PyObject pxs = obj[5];
                 for (int i = 0; i < pxs.Length(); i++)
                 {
                     PyObject c = pxs[i];
                     Color col = ConvertToColor(c, baseCulture);
-                    cols[i] = col;
+                    textureData[i] = col;
                 }
 
-                tex.SetPixels(cols);
-                tex.Apply();
+                // tex.SetPixels(cols);
+                // tex.Apply();
 
-                Texture = tex;
+                // Texture = tex;
             }
 
         }
@@ -100,6 +108,14 @@ public class Brush : IDrawInstrument, IReturnable
         }
 
         return true;
+    }
+
+    public void SetTexture()
+    {
+        Texture2D tex = new Texture2D(width, height);
+        tex.SetPixels(textureData);
+        tex.Apply();
+        Texture = tex;
     }
 
     /// <summary>

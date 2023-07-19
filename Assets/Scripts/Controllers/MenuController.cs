@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
+using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,6 +21,8 @@ public class MenuController : MonoBehaviour
     UserCodeProcessor userCodeProcessor;
     [SerializeField()]
     LanguageController langController;
+    [SerializeField()]
+    ConsoleController consoleController;
 
     [Header("Input fields")]
     [SerializeField()]
@@ -36,10 +41,16 @@ public class MenuController : MonoBehaviour
     [Header("Input fields")]
     [SerializeField()]
     Button SetDllPathBT;
+    [SerializeField()]
+    Button ApplyBT;
 
     [Header("Game objects")]
     [SerializeField()]
     GameObject helpPanel;
+    [SerializeField()]
+    GameObject consolePanel;
+    [SerializeField()]
+    GameObject lineObject;
 
     Brush currentBrush;
     LineExporter le;
@@ -47,6 +58,8 @@ public class MenuController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Screen.SetResolution(Screen.width, 600, FullScreenMode.Windowed);
+        lineObject.transform.position = new Vector3(0, 0, 0);
         error.text = "";
 
         // generate a brush with constant width and black color
@@ -63,6 +76,20 @@ public class MenuController : MonoBehaviour
         le = new LineExporter();
     }
 
+    private void SetMessageText(string text, bool isError)
+    {
+        if (isError)
+        {
+            error.text = "<color=\"red\">" + text + "</color>";
+            consoleController.AppendErrorTextToConsole(text + "\n");
+        }
+        else
+        {
+            error.text = text;
+            consoleController.AppendTextToConsole(text + "\n");
+        }
+    }
+
     /// <summary>
     /// Apply button clicked
     /// - interpret user code
@@ -73,11 +100,26 @@ public class MenuController : MonoBehaviour
 
         if (code.Trim().Length == 0)
         {
-            error.text = langController.noUserCode;
+            SetMessageText(langController.noUserCode, true);
             return;
         }
+        SetMessageText(langController.codeExecuting, false);
 
-        currentBrush = userCodeProcessor.ExecuteCode(code);
+        StartCoroutine(RunCode(code));
+    }
+
+    /// <summary>
+    /// Run user code coroutine
+    /// </summary>
+    /// <param name="code"> Code to run </param>
+    private IEnumerator RunCode(string code)
+    {
+        ApplyBT.interactable = false;
+        
+        Task r = RunBrushCode(code);
+
+        while (!r.IsCompleted)
+            yield return null;
 
         if (currentBrush == null)
         {
@@ -90,19 +132,29 @@ public class MenuController : MonoBehaviour
                 int val = int.Parse(resultString) - 1;
                 erMsg = Regex.Replace(erMsg, l.Value, "line " + val);
             }
-            error.text = erMsg;
+            SetMessageText(erMsg, true);
         }
         else
         {
             currentBrush.Name = brushName.text;
             displayLineController.GenerateExampleLine(currentBrush);
-            error.text = "";
+            SetMessageText(langController.codeExecuted, false);
         }
 
-        if (userCodeProcessor.GetInitStatus())
-        {
-            SetDllPathBT.interactable = false;
-        }
+        Debug.Log("Init status: " + userCodeProcessor.GetInitStatus());
+        
+        SetDllPathBT.interactable = false;
+        ApplyBT.interactable = true;
+    }
+
+    /// <summary>
+    /// Run user code - await task returning created brush
+    /// </summary>
+    /// <param name="code"> Code to run </param>
+    /// <returns> Task </returns>
+    async Task RunBrushCode(string code)
+    {
+        currentBrush = await userCodeProcessor.ExecuteCode(code);
     }
 
     /// <summary>
@@ -113,19 +165,28 @@ public class MenuController : MonoBehaviour
         if (userCode.caretPosition == userCode.text.Length && userCode.verticalScrollbar.size < 1)
         {
             Debug.Log("At end");
-            StartCoroutine(FixCoroutine());
+            StartCoroutine(FixCoroutine(userCode));
         }
+    }
+
+    /// <summary>
+    /// Fix scrollbar position
+    /// </summary>
+    public void FixScrollConsole()
+    {
+        Debug.Log("At end");
+        StartCoroutine(FixCoroutine(consoleController.consoleText));
     }
 
     /// <summary>
     /// Fix scrollbar position coroutine
     /// </summary>
-    IEnumerator FixCoroutine()
+    IEnumerator FixCoroutine(TMP_InputField field)
     {
         Canvas.ForceUpdateCanvases();
         yield return null;
 
-        userCode.verticalScrollbar.value = 1f;
+        field.verticalScrollbar.value = 1f;
         Canvas.ForceUpdateCanvases();
     }
 
@@ -208,9 +269,10 @@ public class MenuController : MonoBehaviour
         if (!r)
         {
             Debug.Log("Wrong dll");
-            error.text = userCodeProcessor.ERROR_MSG;
+            SetMessageText(userCodeProcessor.ERROR_MSG, true);
         } else
         {
+            SetMessageText(langController.dllSet, false);
             error.text = "";
         }
     }
@@ -222,9 +284,12 @@ public class MenuController : MonoBehaviour
     public void OnExportBT()
     {
         if (currentBrush == null)
-            error.text = langController.noBrush;
-        else 
+            SetMessageText(langController.noBrush, true);
+        else
+        {
             le.ExportBrush(currentBrush, path.text.Trim());
+            SetMessageText(langController.brushExported, false);
+        }
     }
 
     /// <summary>
@@ -235,6 +300,82 @@ public class MenuController : MonoBehaviour
     {
         helpPanel.SetActive(value);
     }
+
+    /// <summary>
+    /// Toggle console
+    /// </summary>
+    public void ToggleConsole()
+    {
+        if (!consolePanel.activeSelf)
+        {
+            Screen.SetResolution(Screen.width, 800, FullScreenMode.Windowed);
+            consolePanel.SetActive(true);
+            lineObject.transform.position = new Vector3(0, 0.13f, 0.2f);
+        }
+        else
+        {
+            Screen.SetResolution(Screen.width, 600, FullScreenMode.Windowed);
+            consolePanel.SetActive(false);
+            lineObject.transform.position = new Vector3(0, 0, 0);
+        }
+
+    }
+
+    /// <summary>
+    /// Load code from file
+    /// </summary>
+    /// <param name="p"> Path to file </param>
+    public void LoadFile(string p)
+    {
+        if (!File.Exists(p))
+        {
+            // message to console
+            SetMessageText(langController.GetFileError(1), true);
+            return;
+        }
+
+        if (!p.EndsWith(".py"))
+        {
+            // message to console
+            SetMessageText(langController.GetFileError(2), true);
+            return;
+        }
+
+        string newCode = File.ReadAllText(p);
+        userCode.text = newCode;
+        SetMessageText(langController.fileLoaded, false);
+    }
+
+    /// <summary>
+    /// Load python code file
+    /// </summary>
+    public void OnLoadFile()
+    {
+        string p = Application.dataPath;
+        fileBrowserController.OpenFile(p, "Load file", LoadFile);
+    }
+
+    /// <summary>
+    /// Save code to file
+    /// </summary>
+    /// <param name="p">Path to file</param>
+    private void SaveFile(string p)
+    {
+        if (!p.EndsWith(".py"))
+            p += ".py";
+        File.WriteAllText(p, userCode.text);
+        SetMessageText(langController.fileSaved, false);
+    }
+
+    /// <summary>
+    /// Save code to .py file
+    /// </summary>
+    public void OnSaveFile()
+    {
+        string p = Application.dataPath;
+        fileBrowserController.SaveFile(p, "Save as file", SaveFile);
+    }
+
 
     /// <summary>
     /// Swap language - from CZ to EN and vice versa

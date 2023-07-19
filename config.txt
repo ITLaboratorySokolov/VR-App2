@@ -1,1 +1,1 @@
-D:/Instalace/VS/Shared/Python37_64/python37.dll
+D:/Instalace/VS

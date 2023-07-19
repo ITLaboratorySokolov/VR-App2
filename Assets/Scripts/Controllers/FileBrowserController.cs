@@ -12,6 +12,8 @@ public class FileBrowserController : MonoBehaviour
     /// <summary> Action performed on file loaded </summary>
     [SerializeField]
     public UnityAction<string> OnFileLoaded;
+
+    UnityAction<string> OnFileCreated;
     /// <summary> Loaded path </summary>
     internal string loadedPath;
 
@@ -82,4 +84,38 @@ public class FileBrowserController : MonoBehaviour
             OnFileLoaded.Invoke(file);
         }
     }
+
+    /// <summary>
+    /// Opens a file dialog saving files
+    /// </summary>
+    /// <param name="path"> Default path </param>
+    /// <param name="title"> Title of dialog </param>
+    /// <param name="evnt"> Event performed on file loaded </param>
+    internal void SaveFile(string path, string title, UnityAction<string> evnt)
+    {
+        OnFileCreated = evnt;
+
+        if (Directory.Exists(path))
+            StartCoroutine(ShowSaveFileDialogCoroutine(path, title));
+        else
+            StartCoroutine(ShowSaveFileDialogCoroutine(null, title));
+    }
+
+    /// <summary>
+    /// Opens a file dialog and waits for user input. Created file is then used in OnFileCreated action 
+    /// </summary>
+    /// <returns>An enumerator.</returns>
+    IEnumerator ShowSaveFileDialogCoroutine(string path, string title)
+    {
+        yield return FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Files, false, path, null, title, "Save");
+
+        Debug.Log(FileBrowser.Success);
+        if (FileBrowser.Success)
+        {
+            string file = FileBrowser.Result[0];
+            Debug.Log(FileBrowser.Result[0]);
+            OnFileCreated.Invoke(file);
+        }
+    }
+
 }

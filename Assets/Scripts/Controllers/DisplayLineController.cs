@@ -30,7 +30,7 @@ public class DisplayLineController : MonoBehaviour
     /// <param name="brush"> Brush to draw the line with </param>
     public void GenerateExampleLine(Brush brush)
     {
-        TriangleStrip ts = new TriangleStrip(beginning.position);
+        TriangleStrip ts = new TriangleStrip(beginning.localPosition);
         
         // set color and texture
         lineObj.GetComponent<Renderer>().material.SetTexture("_MainTex", brush.Texture);
@@ -40,15 +40,15 @@ public class DisplayLineController : MonoBehaviour
         float step = 0.05f;
         int modLen = brush.WidthModifier.Length;
         float widthModifier = brush.WidthModifier[0];
-        float distBE = Vector3.Distance(beginning.transform.position, end.transform.position);
+        float distBE = Vector3.Distance(beginning.transform.localPosition, end.transform.localPosition);
         float distanceStep = distBE / (modLen-1);
 
         float i = 0;
         Vector3 newPos = beginning.position;
-        while (newPos != end.transform.position)
+        while (newPos != end.transform.localPosition)
         {
-            newPos = beginning.position + i * (end.position - beginning.position);
-            float distT = Vector3.Distance(beginning.transform.position, newPos);
+            newPos = beginning.localPosition + i * (end.localPosition - beginning.localPosition);
+            float distT = Vector3.Distance(beginning.transform.localPosition, newPos);
 
             // Get width
             int startIn = 0;
@@ -59,7 +59,7 @@ public class DisplayLineController : MonoBehaviour
             {
                 startIn = (int)((distT)/ distanceStep);
                 endIn = startIn + 1;
-                if (newPos == end.transform.position)
+                if (newPos == end.transform.localPosition)
                     widthModifier = brush.WidthModifier[modLen - 1];
                 else
                 {
@@ -84,7 +84,7 @@ public class DisplayLineController : MonoBehaviour
 
             i += step;
             if (distT > distBE)
-                newPos = end.transform.position;
+                newPos = end.transform.localPosition;
         }
 
         lineObj.GetComponent<MeshFilter>().mesh = ts.mesh;
